@@ -1,6 +1,3 @@
-//
-// Created by jcarde7 on 3/28/2024.
-//
 #include <iostream>
 #include <stdexcept>
 #include <cmath>
@@ -30,15 +27,23 @@ public:
 class TokenStream {
     bool full;
     token buffer;
+    std::istream& in;
 
 public:
+    TokenStream(std::istream& in) : full{false}, buffer{'\0'}, in{in} {}
     token get();
     void pushback(token t);
     void ignore(char c);
-    TokenStream() : full{false}, buffer{'\0'} {}
 };
 
-TokenStream ts;
+TokenStream ts(cin);
+
+double factorial(double n) {
+    if (n == 0)
+        return 1;
+    else
+        return n * factorial(n - 1);
+}
 
 token TokenStream::get() {
     if (full) {
@@ -47,23 +52,28 @@ token TokenStream::get() {
     }
 
     char ch;
-    cin >> ch;
+    in >> ch;
 
     switch (ch) {
         case '(': case ')': case ';': case '+': case '-': case '*': case '/': case '%': case 'q':
             return token{ch};
         case '.': case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': {
-            cin.putback(ch);
+            in.putback(ch);
             double val;
-            cin >> val;
-            return token{val};
+            in >> val;
+            if (in.get(ch) && ch == '!') {
+                return token{factorial(val)};
+            } else {
+                in.putback(ch);
+                return token{val};
+            }
         }
         default: {
             if (isalpha(ch)) {
                 string s;
                 s += ch;
-                while (cin.get(ch) && isalnum(ch)) s += ch;
-                cin.putback(ch);
+                while (in.get(ch) && isalnum(ch)) s += ch;
+                in.putback(ch);
                 if (s == "pi") return token{3.14159265358979323846};
                 if (s == "e") return token{2.71828182845904523536};
                 if (s == "phi" || s == "Φ") return token{1.61803398874989484820};
@@ -98,7 +108,7 @@ void TokenStream::ignore(char c) {
     full = false;
 
     char ch = 0;
-    while (cin >> ch) {
+    while (in >> ch) {
         if (ch == c) {
             return;
         }
@@ -207,32 +217,55 @@ double expression() {
 }
 
 void calculate() {
-    while (std::cin) {
+    while (cin) {
         try {
             cout << prompt;
             token t = ts.get();
-
-            while (t.kind() == print) {
-                t = ts.get();
-            }
 
             if (t.kind() == quit) {
                 break;
             }
 
             ts.pushback(t);
-            cout << result << expression() << endl;
+            double result = expression();
+
+            t = ts.get();
+            if (t.kind() == print) {
+                cout << "= " << result << endl;
+            } else {
+                ts.pushback(t);
+            }
         } catch (std::exception const& e) {
             cerr << e.what();
             clean_up_mess();
         } catch (...) {
-            cerr << "Exception occurred."; // Removed endl here
+            cerr << "Exception occurred.";
             clean_up_mess();
         }
     }
 }
 
+void printFunctionality() {
+    cout << "Calculator Functionality:\n";
+    cout << "1. Addition: a + b\n";
+    cout << "2. Subtraction: a - b\n";
+    cout << "3. Multiplication: a * b\n";
+    cout << "4. Division: a / b\n";
+    cout << "5. Modulus: a % b\n";
+    cout << "6. Factorial: a!\n";
+    cout << "7. Square root: sqrt(a)\n";
+    cout << "8. Exponential: exp(a)\n";
+    cout << "9. Natural logarithm: ln(a)\n";
+    cout << "10. Sine: sin(a)\n";
+    cout << "11. Cosine: cos(a)\n";
+    cout << "12. Tangent: tan(a)\n";
+    cout << "Note: a and b are numbers.\n";
+    cout << "End an expression with ; to print the result.\n";
+    cout << "Enter q to quit the calculator.\n";
+}
+
 int main() {
+    printFunctionality();
     try {
         calculate();
         return 0;
