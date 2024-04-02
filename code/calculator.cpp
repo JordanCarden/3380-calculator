@@ -221,7 +221,6 @@ void calculate() {
         try {
             cout << prompt;
             token t = ts.get();
-
             if (t.kind() == quit) {
                 break;
             }
@@ -232,14 +231,18 @@ void calculate() {
             t = ts.get();
             if (t.kind() == print) {
                 cout << "= " << result << endl;
-            } else {
+            }
+            else {
                 ts.pushback(t);
             }
-        } catch (std::exception const& e) {
-            cerr << e.what();
+
+        }
+        catch (std::exception const& e) {
+            cerr << e.what() << endl;
             clean_up_mess();
-        } catch (...) {
-            cerr << "Exception occurred.";
+        }
+        catch (...) {
+            cerr << "Exception occurred." << endl;
             clean_up_mess();
         }
     }
@@ -271,11 +274,11 @@ int main() {
         return 0;
     }
     catch (std::exception const& e) {
-        std::cerr << e.what() << std::endl;
+        cerr << e.what() << endl;
         return 1;
     }
     catch (...) {
-        std::cerr << "exception \n";
+        cerr << "exception \n" << endl;
         return 2;
     }
 }
