@@ -1,10 +1,20 @@
 #include <iostream>
 #include <stdexcept>
 #include <cmath>
-#include <map>
 #include <string>
+#include <sstream>
+#include <windows.h>
+#include <thread>
 
 using namespace std;
+
+void pauseForInput(int key) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    while (!(GetAsyncKeyState(key) & 0x8000)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+}
 
 char const number = '8';
 char const quit = 'q';
@@ -35,8 +45,6 @@ public:
     void pushback(token t);
     void ignore(char c);
 };
-
-TokenStream ts(cin);
 
 double factorial(double n) {
     if (n == 0)
@@ -115,66 +123,66 @@ void TokenStream::ignore(char c) {
     }
 }
 
-void clean_up_mess() {
+void clean_up_mess(TokenStream& ts) {
     ts.ignore(print);
 }
 
-double expression();
+double expression(TokenStream& ts);
 
-double primary() {
+double primary(TokenStream& ts) {
     token t = ts.get();
     double d;
     switch (t.kind()) {
         case '(':
-            d = expression();
+            d = expression(ts);
             t = ts.get();
             if (t.kind() != ')') throw runtime_error("')' expected");
             return d;
         case number:
             return t.value();
         case '-':
-            return -primary();
+            return -primary(ts);
         case '#': // Square root function
         {
-            double val = primary();
+            double val = primary(ts);
             if (val < 0) {
                 throw runtime_error("Square root of negative number");
             }
             return sqrt(val);
         }
         case '@': // Exponential function
-            return exp(primary());
+            return exp(primary(ts));
         case '~': // Natural logarithm
         {
-            double val = primary();
+            double val = primary(ts);
             if (val <= 0) {
                 throw runtime_error("Natural logarithm of non-positive number");
             }
             return log(val);
         }
         case 's': // Sine function
-            return sin(primary());
+            return sin(primary(ts));
         case 'c': // Cosine function
-            return cos(primary());
+            return cos(primary(ts));
         case 't': // Tangent function
-            return tan(primary());
+            return tan(primary(ts));
         default:
             throw runtime_error("primary expected");
     }
 }
 
-double term() {
-    double left = primary();
+double term(TokenStream& ts) {
+    double left = primary(ts);
 
     while (true) {
         token t = ts.get();
 
         switch (t.kind()) {
             case '*':
-                left *= primary();
+                left *= primary(ts);
                 break;
             case '/': {
-                double d = primary();
+                double d = primary(ts);
                 if (d == 0) {
                     throw runtime_error("division by zero");
                 }
@@ -182,7 +190,7 @@ double term() {
                 break;
             }
             case '%': {
-                double d = primary();
+                double d = primary(ts);
                 if (d == 0) {
                     throw runtime_error("modulus by zero");
                 }
@@ -196,18 +204,18 @@ double term() {
     }
 }
 
-double expression() {
-    double left = term();
+double expression(TokenStream& ts) {
+    double left = term(ts);
 
     while (true) {
         token t = ts.get();
 
         switch (t.kind()) {
             case '+':
-                left += term();
+                left += term(ts);
                 break;
             case '-':
-                left -= term();
+                left -= term(ts);
                 break;
             default:
                 ts.pushback(t);
@@ -216,7 +224,7 @@ double expression() {
     }
 }
 
-void calculate() {
+void calculate(TokenStream& ts) {
     while (cin) {
         try {
             cout << prompt;
@@ -226,24 +234,21 @@ void calculate() {
             }
 
             ts.pushback(t);
-            double result = expression();
+            double result = expression(ts);
 
             t = ts.get();
             if (t.kind() == print) {
                 cout << "= " << result << endl;
-            }
-            else {
+            } else {
                 ts.pushback(t);
             }
 
-        }
-        catch (std::exception const& e) {
+        } catch (std::exception const& e) {
             cerr << e.what() << endl;
-            clean_up_mess();
-        }
-        catch (...) {
+            clean_up_mess(ts);
+        } catch (...) {
             cerr << "Exception occurred." << endl;
-            clean_up_mess();
+            clean_up_mess(ts);
         }
     }
 }
@@ -267,18 +272,51 @@ void printFunctionality() {
     cout << "Enter q to quit the calculator.\n";
 }
 
+void run_tests() {
+    auto check_result = [](const string& input, double expected) {
+        istringstream in(input);
+        TokenStream ts(in);
+        double result = expression(ts);
+        if (abs(result - expected) < 1e-9) {
+            cout << "Test passed for input: " << input
+                 << " Result: " << result << endl;
+        } else {
+            cout << "Test failed for input: " << input
+                 << " Expected: " << expected << " Got: " << result << endl;
+        }
+    };
+
+    // Run test cases
+    check_result("3 + 5;", 8.0);
+    check_result("10 - 3;", 7.0);
+    check_result("4 * 2;", 8.0);
+    check_result("10 / 2;", 5.0);
+    check_result("9 % 4;", 1.0);
+    check_result("3.5 + 2.5;", 6.0);
+    check_result("3.5 - 2.5;", 1.0);
+    check_result("sqrt(16);", 4.0);
+    check_result("exp(2);", exp(2));
+    check_result("ln(2);", log(2));
+    check_result("sin(3.14159);", sin(3.14159));
+    check_result("cos(0);", cos(0));
+    check_result("tan(0);", tan(0));
+    check_result("5!;", 120.0);
+}
+
 int main() {
+    run_tests();
+    cout << "PRESS ENTER TO USE CALCULATOR" << endl;
+    pauseForInput(VK_RETURN);
     printFunctionality();
     try {
-        calculate();
+        TokenStream ts{cin};
+        calculate(ts);
         return 0;
-    }
-    catch (std::exception const& e) {
+    } catch (std::exception const& e) {
         cerr << e.what() << endl;
         return 1;
-    }
-    catch (...) {
-        cerr << "exception \n" << endl;
+    } catch (...) {
+        cerr << "Exception occurred." << endl;
         return 2;
     }
 }

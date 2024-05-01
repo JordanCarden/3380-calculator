@@ -1,8 +1,20 @@
 # ninja log v5
+1	558	7362833643990877	build.ninja	3e54c1e419cf50ff
 3	549	7333363748273302	CMakeFiles/3380_calculator.dir/calculator.cpp.obj	4c0f86a15becdbd9
-1	868	7337836662208773	build.ninja	3e54c1e419cf50ff
-951	1061	7337823116888597	3380_calculator.exe	cc62ef8abf62b0c8
-3	1573	7337832890506625	CMakeFiles/3380_calculator.dir/code/calculator.cpp.obj	a4b9a2515038b2ec
-1	558	7337836662208773	build.ninja	3e54c1e419cf50ff
-5	1292	7337841141372496	CMakeFiles/3380_calculator.dir/code/calculator.cpp.obj	a4b9a2515038b2ec
 1293	1485	7337841142978214	3380_calculator.exe	cc62ef8abf62b0c8
+5	1292	7337841141372496	CMakeFiles/3380_calculator.dir/code/calculator.cpp.obj	a4b9a2515038b2ec
+2	889	7362833643990877	build.ninja	3e54c1e419cf50ff
+1	972	7362833656690262	CMakeFiles/3380_calculator.dir/code/calculator.cpp.obj	a4b9a2515038b2ec
+973	1093	7362833657867940	3380_calculator.exe	cc62ef8abf62b0c8
+3	1154	7362837069066449	CMakeFiles/3380_calculator.dir/code/calculator.cpp.obj	a4b9a2515038b2ec
+1158	1275	7362837070254179	3380_calculator.exe	cc62ef8abf62b0c8
+3	1029	7362838919079951	CMakeFiles/3380_calculator.dir/code/calculator.cpp.obj	a4b9a2515038b2ec
+1030	1145	7362838920218621	3380_calculator.exe	cc62ef8abf62b0c8
+3	1020	7362840662868159	CMakeFiles/3380_calculator.dir/code/calculator.cpp.obj	a4b9a2515038b2ec
+1020	1154	7362840664195659	3380_calculator.exe	cc62ef8abf62b0c8
+3	2244	7362843971644845	CMakeFiles/3380_calculator.dir/code/calculator.cpp.obj	a4b9a2515038b2ec
+2248	2384	7362843973022500	3380_calculator.exe	cc62ef8abf62b0c8
+3	2100	7362845288848452	CMakeFiles/3380_calculator.dir/code/calculator.cpp.obj	a4b9a2515038b2ec
+2101	2221	7362845290045323	3380_calculator.exe	cc62ef8abf62b0c8
+3	1871	7362845440594562	CMakeFiles/3380_calculator.dir/code/calculator.cpp.obj	a4b9a2515038b2ec
+1871	1992	7362845441781633	3380_calculator.exe	cc62ef8abf62b0c8
